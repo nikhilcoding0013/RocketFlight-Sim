@@ -1,19 +1,23 @@
-import numpy as np
-if __name__ == "__main__":
+from RocketAltitudeSimulator import RocketAltitudeSimulator
+from PIDController import PIDController
+from PIDTuner import PIDTuner
+
+
+def main():
     # Create rocket
     rocket = RocketAltitudeSimulator(
-        h0=76.02,           # initial altitude
-        v0=69.95,           # initial velocity
-        mass=0.595,         # kg
-        Cd=0.68,            # drag coefficient
-        A_base=0.00452369,  # base area
-        A_max=0.00524229    # max area with brakes
+        h0=76.02,
+        v0=69.95,
+        mass=0.595,
+        Cd=0.68,
+        A_base=0.00452369,
+        A_max=0.00524229
     )
     
-    # Simulate for 1 second with no brakes
-    dt = 0.01
-    for i in range(100):
-        rocket.set_input(0.0)  # brakes closed
-        rocket.step(dt)
-        if i % 10 == 0:
-            print(f"t={i*dt:.2f}s: h={rocket.get_output():.2f}m, v={rocket.get_velocity():.2f}m/s")
+    # TODO: Add PID tuning and comparison
+    print("Rocket simulator created!")
+    print(f"Initial altitude: {rocket.get_output():.2f}m")
+
+
+if __name__ == "__main__":
+    main()
