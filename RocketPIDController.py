@@ -47,7 +47,7 @@ class RocketPIDController:
         predicted_apogee = self.rocket.get_output()
         
         # Error: how far are we from target?
-        error = self.target - predicted_apogee
+        error = predicted_apogee - self.target
         
         # PID terms
         self.integral += error * self.dt
@@ -58,7 +58,7 @@ class RocketPIDController:
         
         # Get current brake position and adjust it
         current_brake_pos = self.rocket.brake_position
-        new_brake_pos = current_brake_pos - adjustment  # Note: MINUS because higher prediction needs LESS braking
+        new_brake_pos = current_brake_pos + adjustment
         
         # Clamp to valid range [0, 1]
         new_brake_pos = max(0.0, min(1.0, new_brake_pos))
