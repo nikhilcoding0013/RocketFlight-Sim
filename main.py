@@ -6,10 +6,10 @@ from PIDTuner import PIDTuner
 def main():
     # Rocket parameters
     rocket_params = {
-        'h0': 76.02,
-        'v0': 69.95,
+        'h0': 76.25,
+        'v0': 70.25,
         'mass': 0.595,
-        'Cd': 0.68,
+        'Cd': 0.65,
         'A_base': 0.00452369,
         'A_max': 0.00524229
     }
