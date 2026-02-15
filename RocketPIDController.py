@@ -1,6 +1,3 @@
-from Simulator import Simulator
-from Utils import clamp
-
 class RocketPIDController:
     """
     PID controller specifically for rocket airbrakes using apogee prediction.
