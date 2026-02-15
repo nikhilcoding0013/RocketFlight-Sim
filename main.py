@@ -32,7 +32,7 @@ def main():
         sim=rocket,
         setpoint=target_apogee,
         t0=0.0,
-        t1=3.0,  # simulate 3 seconds (enough to reach apogee)
+        t1=5.0,  # simulate 3 seconds (enough to reach apogee)
         dt=0.01,
         kp_init=0.01,
         ki_init=0.001,
