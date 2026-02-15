@@ -4,7 +4,7 @@ from Utils import clamp
 class PIDController:
     """Controller for a system using a PID loop."""
 
-    def __init__(self, sim: 'simulator.Simulator', setpoint: float, kp: float, ki: float, kd: float):
+    def __init__(self, sim: Simulator, setpoint: float, kp: float, ki: float, kd: float):
         """Constructs a PIDController
 
         Arguments:
