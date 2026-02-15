@@ -4,7 +4,7 @@ from Simulator import Simulator
 
 def air_density(altitude):
     """Calculate air density at altitude."""
-    rho_0 = 1.225  # sea level density (kg/m³)
+    rho_0 = 1.06  # sea level density (kg/m³)
     scale_height = 8500  # meters
     return rho_0 * np.exp(-altitude / scale_height)
 
