@@ -1,7 +1,7 @@
 from copy import deepcopy
 import numpy as np
 import matplotlib.pyplot as plt
-from Simulations import Simulator
+from Simulator import Simulator
 from PIDController import PIDController
 from Utils import clamp
 from typing import Optional, Tuple
