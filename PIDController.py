@@ -1,4 +1,4 @@
-from Simulations import simulator
+from Simulator import simulator
 from Utils import clamp
 
 class PIDController:
