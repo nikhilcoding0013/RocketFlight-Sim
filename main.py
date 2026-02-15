@@ -42,7 +42,7 @@ def main():
     
     # Run optimization
     kp, ki, kd = tuner.optimize(
-        max_epochs=100,
+        max_epochs=20,
         gamma=0.001,  # learning rate
         verbose=True
     )
