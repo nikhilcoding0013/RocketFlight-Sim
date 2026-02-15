@@ -1,12 +1,4 @@
-from RocketAltitudeSimulator import RocketAltitudeSimulator
-from PIDController import PIDController
-from PIDTuner import PIDTuner
-import importlib
-import RocketAltitudeSimulator as ras
-importlib.reload(ras)
-
 from Optimization import optimize_pid_gains, simulate_and_plot
-
 
 def main():
     # Rocket parameters
