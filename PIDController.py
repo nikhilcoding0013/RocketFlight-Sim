@@ -2,73 +2,77 @@ from Simulator import Simulator
 from Utils import clamp
 
 class PIDController:
-    """Controller for a system using a PID loop."""
-
-    def __init__(self, sim: Simulator, setpoint: float, kp: float, ki: float, kd: float):
-        """Constructs a PIDController
-
-        Arguments:
-            sim {Simulator} -- The Simulator the controller will use.
-            setpoint {float} -- The target value the Simulator must reach.
-            kp {float} -- Proportional constant in PID.
-            ki {float} -- Integral constant in PID.
-            kd {float} -- Derivative constant in PID.
+    """
+    PID controller specifically for rocket airbrakes using apogee prediction.
+    
+    Unlike standard PID, this:
+    - Uses PREDICTED apogee (not current altitude) as the process variable
+    - Controls brake position incrementally (adjusts by small amounts)
+    - Updates based on prediction error
+    """
+    
+    def __init__(self, rocket_sim, target_apogee, kp, ki, kd, dt=0.01):
         """
-        self.sim = sim
-        self.setpoint = setpoint
+        Initialize rocket PID controller.
+        
+        Parameters:
+        -----------
+        rocket_sim : RocketAltitudeSimulator
+            The rocket simulator
+        target_apogee : float
+            Desired final altitude (m)
+        kp, ki, kd : float
+            PID gains
+        dt : float
+            Time step (s)
+        """
+        self.rocket = rocket_sim
+        self.target = target_apogee
         self.kp = kp
         self.ki = ki
         self.kd = kd
-        self._previous_error = 0.0  # Used for the derivative term
-        self._integral = 0.0        # Used for the integral term
-        self._output_min = None     # Optionally set these for output clamping
-        self._output_max = None
-
-    def set_output_limits(self, output_min: float, output_max: float) -> None:
-        """Set output clamping limits."""
-        self._output_min = output_min
-        self._output_max = output_max
-
-    def get_error(self) -> float:
-        """Returns the current error (setpoint - output)."""
-        return self.setpoint - self.sim.get_output()
-
-    def _get_input(self, dt: float) -> float:
-        """Computes the P, I, and D terms to get the input that should be given to the simulated system.
-
-        Arguments:
-            dt {float} -- The time interval between time steps.
-
-        Returns:
-            float -- The input that should be given to the system.
+        self.dt = dt
+        
+        # PID state
+        self.integral = 0.0
+        self.prev_error = 0.0
+    
+    def step(self):
         """
-        err = self.get_error()
-        p = self.kp * err
-
-        # Anti-windup: Only integrate if output is not saturated
-        self._integral += err * dt
-        # Optionally clamp the integral term to prevent windup
-        self._integral = clamp(self._integral, -1e6, 1e6)
-        i = self.ki * self._integral
-
-        d = self.kd * ((err - self._previous_error) / dt)
-
-        output = p + i + d
-        # Clamp output if limits are set
-        if self._output_min is not None and self._output_max is not None:
-            output = clamp(output, self._output_min, self._output_max)
-        return output
-
-    def step(self, dt: float) -> None:
-        """Takes a step in time for the PIDController.
-
-        The P, I, and D terms are calculated to find the new input to give to the system.
-        The simulated system is then updated according to the computed input.
-
-        Arguments:
-            dt {float} -- Time step for the simulation.
+        Take one control step:
+        1. Get current predicted apogee
+        2. Calculate error from target
+        3. Compute PID adjustment
+        4. Update brake position
+        5. Step the simulator forward
         """
-        inpt = self._get_input(dt)
-        self.sim.set_input(inpt)
-        self._previous_error = self.get_error()
-        self.sim.step(dt)
+        # Get predicted apogee with current brake position
+        predicted_apogee = self.rocket.get_output()
+        
+        # Error: how far are we from target?
+        error = self.target - predicted_apogee
+        
+        # PID terms
+        self.integral += error * self.dt
+        derivative = (error - self.prev_error) / self.dt
+        
+        # PID output (how much to CHANGE brake position)
+        adjustment = self.kp * error + self.ki * self.integral + self.kd * derivative
+        
+        # Get current brake position and adjust it
+        current_brake_pos = self.rocket.brake_position
+        new_brake_pos = current_brake_pos - adjustment  # Note: MINUS because higher prediction needs LESS braking
+        
+        # Clamp to valid range [0, 1]
+        new_brake_pos = max(0.0, min(1.0, new_brake_pos))
+        
+        # Set new brake position
+        self.rocket.set_input(new_brake_pos)
+        
+        # Step the simulation forward
+        self.rocket.step(self.dt)
+        
+        # Update for next iteration
+        self.prev_error = error
+        
+        return predicted_apogee, error, new_brake_pos
