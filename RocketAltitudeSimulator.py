@@ -1,3 +1,12 @@
+import numpy as np
+from Simulator import Simulator
+
+def air_density(altitude):
+    """Calculate air density at altitude."""
+    rho_0 = 1.06  # calibrated density (kg/m³)
+    scale_height = 8500  # meters
+    return rho_0 * np.exp(-altitude / scale_height)
+
 class RocketAltitudeSimulator(Simulator):
     """
     Rocket simulator compatible with PIDController.
